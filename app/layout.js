@@ -11,6 +11,7 @@ const notoDevanagari = Noto_Sans_Devanagari({
 export const metadata = {
   title: process.env.NEXT_PUBLIC_CHOWKI_NAME || "पेशी प्रबंधन",
   description: "पेशी और मुवक्किल प्रबंधन",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({ children }) {
