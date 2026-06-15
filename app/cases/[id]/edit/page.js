@@ -4,11 +4,10 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { cases, clients } from "@/lib/schema";
 import { updateCase } from "./actions";
+import { CASE_TYPES } from "@/lib/caseTypes";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base text-slate-800 focus:border-slate-500 focus:outline-none";
-
-const CASE_TYPES = ["दीवानी", "फौजदारी", "राजस्व", "किराया", "अन्य"];
 
 export default async function EditCasePage({ params, searchParams }) {
   // सुरक्षा
@@ -49,7 +48,10 @@ export default async function EditCasePage({ params, searchParams }) {
     <main className="min-h-screen bg-slate-50 pb-10">
       {/* header */}
       <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
-        <a href={`/cases/${caseId}`} className="text-sm text-slate-500 active:text-slate-800">
+        <a
+          href={`/cases/${caseId}`}
+          className="text-sm text-slate-500 active:text-slate-800"
+        >
           ← वापस
         </a>
         <p className="text-base font-bold text-slate-800">केस संपादन</p>
@@ -66,53 +68,113 @@ export default async function EditCasePage({ params, searchParams }) {
         <input type="hidden" name="caseId" defaultValue={caseId} />
 
         <div>
-          <label className="text-sm font-medium text-slate-700">मुवक्किल का नाम *</label>
-          <input name="clientName" type="text" required defaultValue={row.clientName || ""} className={inputClass} />
+          <label className="text-sm font-medium text-slate-700">
+            मुवक्किल का नाम *
+          </label>
+          <input
+            name="clientName"
+            type="text"
+            required
+            defaultValue={row.clientName || ""}
+            className={inputClass}
+          />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">मुवक्किल का फ़ोन</label>
-          <input name="clientPhone" type="tel" inputMode="numeric" defaultValue={row.clientPhone || ""} className={inputClass} />
+          <label className="text-sm font-medium text-slate-700">
+            मुवक्किल का फ़ोन
+          </label>
+          <input
+            name="clientPhone"
+            type="tel"
+            inputMode="numeric"
+            defaultValue={row.clientPhone || ""}
+            className={inputClass}
+          />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">केस नंबर *</label>
-          <input name="caseNumber" type="text" required defaultValue={row.caseNumber || ""} className={inputClass} />
+          <label className="text-sm font-medium text-slate-700">
+            केस नंबर *
+          </label>
+          <input
+            name="caseNumber"
+            type="text"
+            required
+            defaultValue={row.caseNumber || ""}
+            className={inputClass}
+          />
         </div>
 
         <div>
           <label className="text-sm font-medium text-slate-700">कोर्ट</label>
-          <input name="courtName" type="text" defaultValue={row.courtName || ""} className={inputClass} />
+          <input
+            name="courtName"
+            type="text"
+            defaultValue={row.courtName || ""}
+            className={inputClass}
+          />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">केस प्रकार</label>
-          <select name="caseType" defaultValue={row.caseType || ""} className={inputClass}>
+          <label className="text-sm font-medium text-slate-700">
+            केस प्रकार
+          </label>
+          <select
+            name="caseType"
+            defaultValue={row.caseType || ""}
+            className={inputClass}
+          >
             <option value="">चुनें (वैकल्पिक)</option>
             {CASE_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
+              <option key={t} value={t}>
+                {t}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
           <label className="text-sm font-medium text-slate-700">विपक्षी</label>
-          <input name="oppositeParty" type="text" defaultValue={row.oppositeParty || ""} className={inputClass} />
+          <input
+            name="oppositeParty"
+            type="text"
+            defaultValue={row.oppositeParty || ""}
+            className={inputClass}
+          />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">अगली पेशी</label>
-          <input name="nextHearingDate" type="date" defaultValue={row.nextHearingDate || ""} className={inputClass} />
+          <label className="text-sm font-medium text-slate-700">
+            अगली पेशी
+          </label>
+          <input
+            name="nextHearingDate"
+            type="date"
+            defaultValue={row.nextHearingDate || ""}
+            className={inputClass}
+          />
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700">किस चीज़ के लिए (चरण)</label>
-          <input name="stage" type="text" defaultValue={row.stage || ""} className={inputClass} />
+          <label className="text-sm font-medium text-slate-700">
+            किस चीज़ के लिए (चरण)
+          </label>
+          <input
+            name="stage"
+            type="text"
+            defaultValue={row.stage || ""}
+            className={inputClass}
+          />
         </div>
 
         <div>
           <label className="text-sm font-medium text-slate-700">स्थिति</label>
-          <select name="status" defaultValue={row.status || "active"} className={inputClass}>
+          <select
+            name="status"
+            defaultValue={row.status || "active"}
+            className={inputClass}
+          >
             <option value="active">सक्रिय</option>
             <option value="disposed">निस्तारित</option>
           </select>
@@ -120,7 +182,12 @@ export default async function EditCasePage({ params, searchParams }) {
 
         <div>
           <label className="text-sm font-medium text-slate-700">टिप्पणी</label>
-          <textarea name="notes" rows={3} defaultValue={row.notes || ""} className={inputClass} />
+          <textarea
+            name="notes"
+            rows={3}
+            defaultValue={row.notes || ""}
+            className={inputClass}
+          />
         </div>
 
         <button
