@@ -4,15 +4,7 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { cases, clients } from "@/lib/schema";
 import { todayIST, formatDateHindi } from "@/lib/dates";
-
-// मुवक्किल को भेजने के लिए wa.me लिंक (हिंदी संदेश)
-function waLink(phone, caseNumber, dateHindi, court) {
-  const digits = (phone || "").replace(/\D/g, "");
-  const num = digits.startsWith("91") ? digits : `91${digits}`;
-  const chowki = process.env.NEXT_PUBLIC_CHOWKI_NAME || "";
-  const msg = `नमस्ते, आपके केस ${caseNumber} की अगली पेशी ${dateHindi} को ${court || "कोर्ट"} में है। — ${chowki} चौकी`;
-  return `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
-}
+import { waReminderLink } from "@/lib/whatsapp";
 
 export default async function DashboardPage() {
   // सुरक्षा — session न हो तो login पर वापस
@@ -37,8 +29,8 @@ export default async function DashboardPage() {
       and(
         eq(cases.userId, session.id),
         eq(cases.status, "active"),
-        eq(cases.nextHearingDate, today)
-      )
+        eq(cases.nextHearingDate, today),
+      ),
     );
 
   const todayHindi = formatDateHindi(today);
@@ -53,26 +45,43 @@ export default async function DashboardPage() {
           </p>
           <p className="text-xs text-slate-500">{todayHindi}</p>
         </div>
-        <a href="/api/auth/logout" className="text-sm text-slate-500 active:text-slate-800">
+        <a
+          href="/api/auth/logout"
+          className="text-sm text-slate-500 active:text-slate-800"
+        >
           लॉगआउट
         </a>
       </header>
 
       {/* त्वरित बटन */}
       <div className="grid grid-cols-2 gap-3 px-4 pt-4">
-        <a href="/cases/new" className="rounded-xl bg-slate-800 px-4 py-4 text-center text-base font-medium text-white transition active:scale-[0.98]">
+        <a
+          href="/cases/new"
+          className="rounded-xl bg-slate-800 px-4 py-4 text-center text-base font-medium text-white transition active:scale-[0.98]"
+        >
           नया केस जोड़ें
         </a>
-        <a href="/cases" className="rounded-xl border border-slate-200 bg-white px-4 py-4 text-center text-base font-medium text-slate-800 transition active:scale-[0.98]">
+        <a
+          href="/cases"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-4 text-center text-base font-medium text-slate-800 transition active:scale-[0.98]"
+        >
           सभी केस
         </a>
       </div>
+      <a
+        href="/upcoming"
+        className="mx-4 mt-3 block rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-base font-medium text-slate-800 transition active:scale-[0.98]"
+      >
+        आने वाली पेशियाँ
+      </a>
 
       {/* आज की पेशी */}
       <section className="px-4 pt-6">
         <h2 className="text-lg font-bold text-slate-800">
           आज की पेशी{" "}
-          {rows.length > 0 && <span className="text-slate-400">({rows.length})</span>}
+          {rows.length > 0 && (
+            <span className="text-slate-400">({rows.length})</span>
+          )}
         </h2>
 
         {rows.length === 0 ? (
@@ -82,17 +91,29 @@ export default async function DashboardPage() {
         ) : (
           <ul className="mt-4 space-y-3">
             {rows.map((c) => (
-              <li key={c.id} className="rounded-xl border border-slate-200 bg-white p-4">
-                <p className="text-base font-semibold text-slate-800">{c.clientName}</p>
+              <li
+                key={c.id}
+                className="rounded-xl border border-slate-200 bg-white p-4"
+              >
+                <p className="text-base font-semibold text-slate-800">
+                  {c.clientName}
+                </p>
                 <p className="mt-0.5 text-sm text-slate-600">
                   केस {c.caseNumber}
                   {c.courtName ? ` • ${c.courtName}` : ""}
                 </p>
-                {c.stage && <p className="mt-0.5 text-sm text-slate-500">{c.stage}</p>}
+                {c.stage && (
+                  <p className="mt-0.5 text-sm text-slate-500">{c.stage}</p>
+                )}
 
                 {c.clientPhone ? (
                   <a
-                    href={waLink(c.clientPhone, c.caseNumber, todayHindi, c.courtName)}
+                    href={waReminderLink(
+                      c.clientPhone,
+                      c.caseNumber,
+                      todayHindi,
+                      c.courtName,
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-3 inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition active:scale-[0.98]"
