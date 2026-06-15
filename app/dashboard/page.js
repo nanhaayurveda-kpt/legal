@@ -91,7 +91,7 @@ export default async function DashboardPage() {
                 {c.stage && <p className="mt-0.5 text-sm text-slate-500">{c.stage}</p>}
 
                 {c.clientPhone ? (
-                  
+                  <a
                     href={waLink(c.clientPhone, c.caseNumber, todayHindi, c.courtName)}
                     target="_blank"
                     rel="noopener noreferrer"

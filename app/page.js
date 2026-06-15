@@ -32,7 +32,7 @@ export default async function LoginPage({ searchParams }) {
           </p>
         )}
 
-        
+        <a
           href="/api/auth/login"
           className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-slate-800 px-4 py-3 text-base font-medium text-white transition active:scale-[0.98]"
         >

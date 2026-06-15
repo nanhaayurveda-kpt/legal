@@ -52,7 +52,7 @@ export default async function CasesPage() {
               const isToday = c.nextHearingDate === today;
               return (
                 <li key={c.id}>
-                  
+                  <a
                     href={`/cases/${c.id}`}
                     className="block rounded-xl border border-slate-200 bg-white p-4 transition active:scale-[0.99]"
                   >
