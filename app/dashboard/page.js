@@ -45,12 +45,20 @@ export default async function DashboardPage() {
           </p>
           <p className="text-xs text-slate-500">{todayHindi}</p>
         </div>
-        <a
-          href="/api/auth/logout"
-          className="text-sm text-slate-500 active:text-slate-800"
-        >
-          लॉगआउट
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            href="/help"
+            className="text-sm text-slate-500 active:text-slate-800"
+          >
+            सहायता
+          </a>
+          <a
+            href="/api/auth/logout"
+            className="text-sm text-slate-500 active:text-slate-800"
+          >
+            लॉगआउट
+          </a>
+        </div>
       </header>
 
       {/* त्वरित बटन */}
@@ -73,6 +81,12 @@ export default async function DashboardPage() {
         className="mx-4 mt-3 block rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-base font-medium text-slate-800 transition active:scale-[0.98]"
       >
         आने वाली पेशियाँ
+      </a>
+      <a
+        href="/research"
+        className="mx-4 mt-3 block rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-base font-medium text-slate-800 transition active:scale-[0.98]"
+      >
+        केस लॉ खोज
       </a>
 
       {/* आज की पेशी */}
