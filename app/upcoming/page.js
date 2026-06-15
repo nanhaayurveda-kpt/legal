@@ -83,7 +83,7 @@ export default async function UpcomingPage() {
                       </a>
 
                       {c.clientPhone && (
-                        
+                        <a
                           href={waReminderLink(c.clientPhone, c.caseNumber, formatDateHindi(g.date), c.courtName)}
                           target="_blank"
                           rel="noopener noreferrer"

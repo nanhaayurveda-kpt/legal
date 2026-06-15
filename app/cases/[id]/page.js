@@ -85,7 +85,7 @@ export default async function CaseDetailPage({ params }) {
           )}
 
           {row.clientPhone && row.nextHearingDate && (
-            
+            <a
               href={waReminderLink(row.clientPhone, row.caseNumber, dateHindi, row.courtName)}
               target="_blank"
               rel="noopener noreferrer"
