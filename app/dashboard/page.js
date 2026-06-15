@@ -89,6 +89,13 @@ export default async function DashboardPage() {
         केस लॉ खोज
       </a>
 
+      <a
+        href="/draft"
+        className="mx-4 mt-3 block rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-base font-medium text-slate-800 transition active:scale-[0.98]"
+      >
+        मसौदा बनाएँ
+      </a>
+
       {/* आज की पेशी */}
       <section className="px-4 pt-6">
         <h2 className="text-lg font-bold text-slate-800">
