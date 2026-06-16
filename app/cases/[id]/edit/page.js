@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { cases, clients } from "@/lib/schema";
 import { updateCase } from "./actions";
+import DeleteCase from "./DeleteCase";
 import { CASE_TYPES } from "@/lib/caseTypes";
 
 const inputClass =
@@ -197,6 +198,9 @@ export default async function EditCasePage({ params, searchParams }) {
           अपडेट करें
         </button>
       </form>
+      <div className="px-4">
+        <DeleteCase caseId={caseId} />
+      </div>
     </main>
   );
 }

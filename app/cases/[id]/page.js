@@ -52,7 +52,10 @@ export default async function CaseDetailPage({ params }) {
           ← वापस
         </a>
         <p className="text-base font-bold text-slate-800">केस ब्योरा</p>
-        <a href={`/cases/${row.id}/edit`} className="text-sm font-medium text-slate-800">
+     <a
+     href={`/cases/${row.id}/edit`}
+          className="rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-medium text-white active:scale-[0.98]"
+        >
           संपादित करें
         </a>
       </header>

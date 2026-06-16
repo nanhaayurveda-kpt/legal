@@ -47,7 +47,9 @@ export async function updateCase(formData) {
   await db
     .update(clients)
     .set({ name: clientName, phone: clientPhone })
-    .where(and(eq(clients.id, existing.clientId), eq(clients.userId, session.id)));
+    .where(
+      and(eq(clients.id, existing.clientId), eq(clients.userId, session.id)),
+    );
 
   // केस अपडेट (ownership) — updatedAt schema के $onUpdate से अपने-आप
   await db
@@ -68,4 +70,22 @@ export async function updateCase(formData) {
   revalidatePath("/dashboard");
   revalidatePath(`/cases/${caseId}`);
   redirect(`/cases/${caseId}`);
+}
+
+export async function deleteCase(formData) {
+  // auth
+  const session = await getSession();
+  if (!session) redirect("/");
+
+  const caseId = parseInt(formData.get("caseId"), 10);
+  if (!caseId) redirect("/cases");
+
+  // सिर्फ़ अपना ही केस हटाओ (ownership)
+  await db
+    .delete(cases)
+    .where(and(eq(cases.id, caseId), eq(cases.userId, session.id)));
+
+  revalidatePath("/cases");
+  revalidatePath("/dashboard");
+  redirect("/cases");
 }

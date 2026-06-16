@@ -1,5 +1,6 @@
 import { Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
+import HomeButton from "./HomeButton";
 
 // देवनागरी + latin (हिंदी टेक्स्ट और अंक/अंग्रेज़ी दोनों के लिए)
 const notoDevanagari = Noto_Sans_Devanagari({
@@ -17,7 +18,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="hi">
-      <body className={notoDevanagari.className}>{children}</body>
+      <body className={notoDevanagari.className}>
+        {children}
+        <HomeButton />
+      </body>
     </html>
   );
 }
