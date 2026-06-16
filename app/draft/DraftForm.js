@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { generateDraftAction } from "./actions";
 
 const inputClass =
@@ -12,42 +12,43 @@ export default function DraftForm({ types }) {
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
-  const [voiceSupported, setVoiceSupported] = useState(false);
+  const [interim, setInterim] = useState("");
+  const [voiceError, setVoiceError] = useState("");
   const recognitionRef = useRef(null);
 
-  // browser में voice सपोर्ट है या नहीं — mount पर जाँचो
-  useEffect(() => {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    setVoiceSupported(!!SR);
-  }, []);
-
-  // माइक — हिंदी बोलकर तथ्य में जोड़ो
-  function handleMic() {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return;
-
-    if (listening) {
-      recognitionRef.current?.stop();
-      return;
+  <button
+    type="button"
+    onClick={handleMic}
+    className={
+      "mt-2 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition active:scale-[0.98] " +
+      (listening
+        ? "border-red-300 bg-red-50 text-red-700"
+        : "border-slate-300 bg-white text-slate-700")
     }
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      className="h-4 w-4"
+    >
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+      <line x1="12" y1="19" x2="12" y2="23" />
+    </svg>
+    {listening ? "सुन रहा हूँ… रोकने के लिए दबाएँ" : "बोलकर लिखें"}
+  </button>;
 
-    const recognition = new SR();
-    recognition.lang = "hi-IN";
-    recognition.interimResults = false;
-    recognition.continuous = false;
-
-    recognition.onresult = (e) => {
-      const text = e.results[0][0].transcript;
-      setFacts((prev) => (prev ? prev + " " + text : text));
-    };
-    recognition.onend = () => setListening(false);
-    recognition.onerror = () => setListening(false);
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    setListening(true);
+  {
+    listening && interim && (
+      <p className="mt-2 text-sm text-slate-500">{interim}</p>
+    );
   }
-
+  
+  {
+    voiceError && <p className="mt-2 text-sm text-red-600">{voiceError}</p>;
+  }
   // मसौदा बनाओ — server action को बुलाओ
   async function handleGenerate() {
     if (!facts.trim()) return;
