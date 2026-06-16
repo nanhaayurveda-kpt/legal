@@ -6,6 +6,7 @@ import { cases, clients } from "@/lib/schema";
 import { updateCase } from "./actions";
 import DeleteCase from "./DeleteCase";
 import { CASE_TYPES } from "@/lib/caseTypes";
+import { COURTS } from "@/lib/courts";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base text-slate-800 focus:border-slate-500 focus:outline-none";
@@ -112,9 +113,15 @@ export default async function EditCasePage({ params, searchParams }) {
           <input
             name="courtName"
             type="text"
+            list="courtList"
             defaultValue={row.courtName || ""}
             className={inputClass}
           />
+          <datalist id="courtList">
+            {COURTS.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
         </div>
 
         <div>

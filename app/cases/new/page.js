@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { createCase } from "./actions";
 import { CASE_TYPES } from "@/lib/caseTypes";
+import { COURTS } from "@/lib/courts";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-slate-300 px-3 py-2.5 text-base text-slate-800 focus:border-slate-500 focus:outline-none";
@@ -81,9 +82,15 @@ export default async function NewCasePage({ searchParams }) {
           <input
             name="courtName"
             type="text"
-            placeholder="कोर्ट का नाम"
+            list="courtList"
+            placeholder="चुनें या टाइप करें (कक्ष संख्या भी)"
             className={inputClass}
           />
+          <datalist id="courtList">
+            {COURTS.map((c) => (
+              <option key={c} value={c} />
+            ))}
+          </datalist>
         </div>
 
         <div>
