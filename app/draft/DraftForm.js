@@ -16,39 +16,71 @@ export default function DraftForm({ types }) {
   const [voiceError, setVoiceError] = useState("");
   const recognitionRef = useRef(null);
 
-  <button
-    type="button"
-    onClick={handleMic}
-    className={
-      "mt-2 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition active:scale-[0.98] " +
-      (listening
-        ? "border-red-300 bg-red-50 text-red-700"
-        : "border-slate-300 bg-white text-slate-700")
+  // माइक — हिंदी बोलकर तथ्य में जोड़ो (हर दिक़्क़त की वजह दिखाओ)
+  function handleMic() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      setVoiceError(
+        "इस ब्राउज़र में बोलकर लिखना नहीं चलता — Chrome खोलें, या कीबोर्ड का माइक दबाएँ।",
+      );
+      return;
     }
-  >
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      className="h-4 w-4"
-    >
-      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-      <line x1="12" y1="19" x2="12" y2="23" />
-    </svg>
-    {listening ? "सुन रहा हूँ… रोकने के लिए दबाएँ" : "बोलकर लिखें"}
-  </button>;
 
-  {
-    listening && interim && (
-      <p className="mt-2 text-sm text-slate-500">{interim}</p>
-    );
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    setVoiceError("");
+    setInterim("");
+
+    const recognition = new SR();
+    recognition.lang = "hi-IN";
+    recognition.interimResults = true;
+    recognition.continuous = false;
+
+    recognition.onresult = (e) => {
+      let interimText = "";
+      for (let i = 0; i < e.results.length; i++) {
+        const r = e.results[i];
+        if (r.isFinal) {
+          const t = r[0].transcript.trim();
+          setFacts((prev) => (prev ? prev + " " + t : t));
+        } else {
+          interimText += r[0].transcript;
+        }
+      }
+      setInterim(interimText);
+    };
+
+    recognition.onerror = (e) => {
+      const reasons = {
+        "not-allowed": "माइक की अनुमति नहीं मिली — ब्राउज़र में माइक allow करें।",
+        "service-not-allowed":
+          "माइक की अनुमति नहीं मिली — ब्राउज़र में माइक allow करें।",
+        "no-speech": "आवाज़ नहीं सुनाई दी — दुबारा बोलें।",
+        "audio-capture": "माइक नहीं मिला — फ़ोन/लैपटॉप का माइक जाँचें।",
+        network: "इंटरनेट की दिक़्क़त — कनेक्शन जाँचकर दुबारा कोशिश करें।",
+      };
+      setVoiceError(reasons[e.error] || "बोलकर लिखने में दिक़्क़त — दुबारा दबाएँ।");
+      setListening(false);
+      setInterim("");
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+      setInterim("");
+    };
+
+    recognitionRef.current = recognition;
+    try {
+      recognition.start();
+      setListening(true);
+    } catch {
+      setVoiceError("बोलकर लिखना शुरू नहीं हो पाया — दुबारा दबाएँ।");
+    }
   }
-  
-  {
-    voiceError && <p className="mt-2 text-sm text-red-600">{voiceError}</p>;
-  }
+
   // मसौदा बनाओ — server action को बुलाओ
   async function handleGenerate() {
     if (!facts.trim()) return;
@@ -83,7 +115,6 @@ export default function DraftForm({ types }) {
     );
     win.document.close();
     win.focus();
-    // फ़ॉन्ट लोड होने का वक़्त देकर print
     setTimeout(() => win.print(), 600);
   }
 
@@ -119,30 +150,36 @@ export default function DraftForm({ types }) {
           placeholder="केस का ब्योरा और कारण — जैसे आरोपी का नाम, धारा, गिरफ़्तारी की तारीख़, ज़मानत का आधार…"
           className={inputClass + " mt-1"}
         />
-        {voiceSupported && (
-          <button
-            type="button"
-            onClick={handleMic}
-            className={
-              "mt-2 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition active:scale-[0.98] " +
-              (listening
-                ? "border-red-300 bg-red-50 text-red-700"
-                : "border-slate-300 bg-white text-slate-700")
-            }
+
+        <button
+          type="button"
+          onClick={handleMic}
+          className={
+            "mt-2 inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition active:scale-[0.98] " +
+            (listening
+              ? "border-red-300 bg-red-50 text-red-700"
+              : "border-slate-300 bg-white text-slate-700")
+          }
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="h-4 w-4"
           >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              className="h-4 w-4"
-            >
-              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-              <line x1="12" y1="19" x2="12" y2="23" />
-            </svg>
-            {listening ? "सुन रहा हूँ… रोकने के लिए दबाएँ" : "बोलकर लिखें"}
-          </button>
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+            <line x1="12" y1="19" x2="12" y2="23" />
+          </svg>
+          {listening ? "सुन रहा हूँ… रोकने के लिए दबाएँ" : "बोलकर लिखें"}
+        </button>
+
+        {listening && interim && (
+          <p className="mt-2 text-sm text-slate-500">{interim}</p>
+        )}
+        {voiceError && (
+          <p className="mt-2 text-sm text-red-600">{voiceError}</p>
         )}
       </div>
 
