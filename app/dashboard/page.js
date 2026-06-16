@@ -124,7 +124,7 @@ export default async function DashboardPage() {
           <ul className="mt-4 space-y-3">
             {overdueRows.map((c) => (
               <li key={c.id}>
-                
+                <a
                   href={`/cases/${c.id}`}
                   className="block rounded-xl border border-red-200 bg-red-50 p-4 transition active:scale-[0.99]"
                 >
