@@ -119,7 +119,8 @@ export default async function DashboardPage() {
       {overdueRows.length > 0 && (
         <section className="px-4 pt-6">
           <h2 className="text-lg font-bold text-red-700">
-            छूटी पेशी <span className="text-red-400">({overdueRows.length})</span>
+            छूटी पेशी{" "}
+            <span className="text-red-400">({overdueRows.length})</span>
           </h2>
           <ul className="mt-4 space-y-3">
             {overdueRows.map((c) => (
@@ -136,7 +137,8 @@ export default async function DashboardPage() {
                     {c.courtName ? ` • ${c.courtName}` : ""}
                   </p>
                   <p className="mt-1 text-sm font-medium text-red-700">
-                    बीती तारीख़: {formatDateHindi(c.nextHearingDate)} — खोलकर नई तारीख़ डालें
+                    बीती तारीख़: {formatDateHindi(c.nextHearingDate)} — खोलकर नई
+                    तारीख़ डालें
                   </p>
                 </a>
               </li>
@@ -165,16 +167,18 @@ export default async function DashboardPage() {
                 key={c.id}
                 className="rounded-xl border border-slate-200 bg-white p-4"
               >
-                <p className="text-base font-semibold text-slate-800">
-                  {c.clientName}
-                </p>
-                <p className="mt-0.5 text-sm text-slate-600">
-                  केस {c.caseNumber}
-                  {c.courtName ? ` • ${c.courtName}` : ""}
-                </p>
-                {c.stage && (
-                  <p className="mt-0.5 text-sm text-slate-500">{c.stage}</p>
-                )}
+                <a href={`/cases/${c.id}`} className="block active:opacity-70">
+                  <p className="text-base font-semibold text-slate-800">
+                    {c.clientName}
+                  </p>
+                  <p className="mt-0.5 text-sm text-slate-600">
+                    केस {c.caseNumber}
+                    {c.courtName ? ` • ${c.courtName}` : ""}
+                  </p>
+                  {c.stage && (
+                    <p className="mt-0.5 text-sm text-slate-500">{c.stage}</p>
+                  )}
+                </a>
 
                 {c.clientPhone ? (
                   <a
