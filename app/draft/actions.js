@@ -1,7 +1,7 @@
 "use server";
 
 import { getSession } from "@/lib/auth";
-import { generateDraft } from "@/lib/gemini";
+import { generateDraft } from "@/lib/ai";
 
 // मसौदा बनाओ — auth जाँच के बाद Gemini से
 export async function generateDraftAction(typeId, facts) {

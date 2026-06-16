@@ -3,12 +3,16 @@ import { and, eq, asc } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { cases, clients } from "@/lib/schema";
-import { formatDateHindi, todayIST } from "@/lib/dates";
+import { todayIST } from "@/lib/dates";
+import CasesList from "./CasesList";
 
-export default async function CasesPage() {
+export default async function CasesPage({ searchParams }) {
   // सुरक्षा — session न हो तो login पर वापस
   const session = await getSession();
   if (!session) redirect("/");
+
+  const sp = await searchParams;
+  const showDisposed = sp?.show === "disposed";
 
   // चौकी के सभी active केस, मुवक्किल सहित, अगली पेशी के क्रम में
   const rows = await db
@@ -22,7 +26,12 @@ export default async function CasesPage() {
     })
     .from(cases)
     .leftJoin(clients, eq(cases.clientId, clients.id))
-    .where(and(eq(cases.userId, session.id), eq(cases.status, "active")))
+    .where(
+      and(
+        eq(cases.userId, session.id),
+        eq(cases.status, showDisposed ? "disposed" : "active"),
+      ),
+    )
     .orderBy(asc(cases.nextHearingDate));
 
   const today = todayIST();
@@ -31,7 +40,10 @@ export default async function CasesPage() {
     <main className="min-h-screen bg-slate-50 pb-10">
       {/* header — वापस + नया केस */}
       <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
-        <a href="/dashboard" className="text-sm text-slate-500 active:text-slate-800">
+        <a
+          href="/dashboard"
+          className="text-sm text-slate-500 active:text-slate-800"
+        >
           ← वापस
         </a>
         <p className="text-base font-bold text-slate-800">सभी केस</p>
@@ -39,52 +51,41 @@ export default async function CasesPage() {
           + नया
         </a>
       </header>
+      {/* सक्रिय / निस्तारित टैब */}
+      <div className="flex gap-2 px-4 pt-3">
+        <a
+          href="/cases"
+          className={
+            "rounded-lg px-3 py-1.5 text-sm font-medium " +
+            (!showDisposed
+              ? "bg-slate-800 text-white"
+              : "border border-slate-200 bg-white text-slate-600")
+          }
+        >
+          सक्रिय
+        </a>
+        <a
+          href="/cases?show=disposed"
+          className={
+            "rounded-lg px-3 py-1.5 text-sm font-medium " +
+            (showDisposed
+              ? "bg-slate-800 text-white"
+              : "border border-slate-200 bg-white text-slate-600")
+          }
+        >
+          निस्तारित
+        </a>
+      </div>
 
       <section className="px-4 pt-4">
         {rows.length === 0 ? (
           <p className="mt-4 rounded-xl border border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-500">
-            अभी कोई केस नहीं। ऊपर “+ नया” से जोड़ें।
+            {showDisposed
+              ? "कोई निस्तारित केस नहीं।"
+              : "अभी कोई केस नहीं। ऊपर “+ नया” से जोड़ें।"}
           </p>
         ) : (
-          <ul className="space-y-3">
-            {rows.map((c) => {
-              const overdue = c.nextHearingDate && c.nextHearingDate < today;
-              const isToday = c.nextHearingDate === today;
-              return (
-                <li key={c.id}>
-                  <a
-                    href={`/cases/${c.id}`}
-                    className="block rounded-xl border border-slate-200 bg-white p-4 transition active:scale-[0.99]"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-base font-semibold text-slate-800">{c.clientName}</p>
-                        <p className="mt-0.5 text-sm text-slate-600">
-                          केस {c.caseNumber}
-                          {c.courtName ? ` • ${c.courtName}` : ""}
-                        </p>
-                        {c.stage && <p className="mt-0.5 text-sm text-slate-500">{c.stage}</p>}
-                      </div>
-                      {c.nextHearingDate && (
-                        <span
-                          className={
-                            "shrink-0 rounded-lg px-2 py-1 text-xs font-medium " +
-                            (isToday
-                              ? "bg-green-100 text-green-700"
-                              : overdue
-                              ? "bg-red-100 text-red-700"
-                              : "bg-slate-100 text-slate-600")
-                          }
-                        >
-                          {formatDateHindi(c.nextHearingDate)}
-                        </span>
-                      )}
-                    </div>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+          <CasesList cases={rows} today={today} />
         )}
       </section>
     </main>

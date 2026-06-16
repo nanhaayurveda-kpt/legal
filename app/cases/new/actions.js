@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { clients, cases } from "@/lib/schema";
@@ -28,25 +28,43 @@ export async function createCase(formData) {
     redirect("/cases/new?error=missing");
   }
 
-  // पहले मुवक्किल जोड़ो (Turso पर .returning() नहीं), फिर उसकी id लो
-  await db.insert(clients).values({
-    userId: session.id,
-    name: clientName,
-    phone: clientPhone,
-  });
-  const client = (
-    await db
-      .select({ id: clients.id })
-      .from(clients)
-      .where(eq(clients.userId, session.id))
-      .orderBy(desc(clients.id))
-      .limit(1)
-  )[0];
+  // मुवक्किल का id तय करो — उसी फ़ोन वाला पहले से हो तो दुबारा इस्तेमाल करो (duplicate न बने)
+  let clientId;
+  if (clientPhone) {
+    const existing = (
+      await db
+        .select({ id: clients.id })
+        .from(clients)
+        .where(
+          and(eq(clients.userId, session.id), eq(clients.phone, clientPhone)),
+        )
+        .limit(1)
+    )[0];
+    if (existing) clientId = existing.id;
+  }
+
+  // नहीं मिला (या फ़ोन ख़ाली) — तब नया मुवक्किल बनाओ (Turso पर .returning() नहीं)
+  if (!clientId) {
+    await db.insert(clients).values({
+      userId: session.id,
+      name: clientName,
+      phone: clientPhone,
+    });
+    const created = (
+      await db
+        .select({ id: clients.id })
+        .from(clients)
+        .where(eq(clients.userId, session.id))
+        .orderBy(desc(clients.id))
+        .limit(1)
+    )[0];
+    clientId = created.id;
+  }
 
   // फिर केस जोड़ो, उसी मुवक्किल से जुड़ा
   await db.insert(cases).values({
     userId: session.id,
-    clientId: client.id,
+    clientId,
     caseNumber,
     courtName,
     caseType,
